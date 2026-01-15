@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Meal Tracker</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.3), rgba(255,255,255,0.3)),
+    url("https://as2.ftcdn.net/v2/jpg/03/20/39/81/1000_F_320398182_1X1ebszxgKyeS6j291ywWYIw1dfRLETC.jpg") no-repeat center center;
+  background-size: cover;
+}
+.container {
+  background: rgba(255,255,255,0.85);
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+h1 { font-size: 22px; margin-bottom: 8px; }
+p { font-size: 14px; color: #555; margin-bottom: 20px; }
+input { width: 100%; padding: 15px; font-size: 18px; border: 2px solid #ccc; border-radius: 6px; outline: none; }
+input:focus { border-color: #007bff; }
+#status { margin-top: 15px; font-size: 14px; font-weight: bold; }
+.success { color: green; } .error { color: red; }
+#lastScans { margin-top: 20px; text-align: left; }
+#lastScans h3 { font-size: 14px; margin-bottom: 8px; }
+#scanList { list-style: none; padding: 0; margin: 0; }
+#scanList li { font-size: 13px; padding: 6px 8px; background: #f1f1f1; border-radius: 4px; margin-bottom: 6px; }
+.duplicate { background: #ffe5e5 !important; border-left: 5px solid #ff4d4d; color: #a10000; }
+#totalCount { font-size: 15px; font-weight: bold; color: #29a745; margin-top: 20px; text-align: center; }
+#clock { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #333; }
+#developer { margin-top: 20px; overflow: hidden; width: 100%; }
+#developer .slide { display: inline-block; white-space: nowrap; font-size: 13px; color: #444; animation: slideText 10s linear infinite; }
+#developer strong { color: #007bff; background: rgba(0, 123, 255, 0.12); padding: 6px 12px; border-radius: 15px; }
+@keyframes slideText { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div id="clock"></div>
+  <h1>Pune P3 Daily Meal Tracker</h1>
+  <p>Scan QR code using handheld scanner</p>
+
+  <input type="text" id="qrInput" placeholder="Scan here..." autofocus />
+  <div id="status"></div>
+
+  <div id="lastScans">
+    <h3>Last 5 Scans</h3>
+    <ul id="scanList"></ul>
+  </div>
+
+  <div id="totalCount">Total Scans: 0</div>
+
+  <div id="developer">
+    <div class="slide">
+      Developed by <strong>Yash Bhambere, Mob No. 8805539113</strong>
+    </div>
+  </div>
+</div>
+
+<script>
+const webAppUrl = "https://script.google.com/macros/s/AKfycbxBFHqLh6bjDTpAHNf6qvGwMKFBQhgExYRRibRI4yLHlVKWD773ghV9UXzhqZ8RIBYn8Q/exec"; // <-- Replace with your deployed Web App URL
+const input = document.getElementById("qrInput");
+const status = document.getElementById("status");
+const scanList = document.getElementById("scanList");
+const totalCountEl = document.getElementById("totalCount");
+
+// Audio beeps
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playBeep(freq,duration,type="sine"){if(audioCtx.state==="suspended") audioCtx.resume(); const o=audioCtx.createOscillator(); o.type=type;o.frequency.value=freq;o.connect(audioCtx.destination);o.start();o.stop(audioCtx.currentTime+duration/1000);}
+function playSuccessBeep(){playBeep(1200,120);}
+function playDuplicateBeep(){playBeep(600,250,"triangle");}
+function playInvalidBeep(){playBeep(300,350,"square");}
+
+// Clock
+function updateClock(){
+  const now = new Date();
+  document.getElementById("clock").textContent = now.toLocaleDateString(undefined,{year:"numeric",month:"long",day:"numeric"}) + " | " + now.toLocaleTimeString();
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// QR Scan handler
+const scannedSet = new Set();
+
+input.addEventListener("keydown", function(e){
+  if(e.key !== "Enter") return;
+  const qrData = input.value.trim();
+  input.value = "";
+  if(!qrData) return;
+
+  const li = document.createElement("li");
+  li.textContent = "⏳ " + qrData;
+  scanList.prepend(li);
+  while(scanList.children.length > 5) scanList.removeChild(scanList.lastChild);
+
+  async function sendScan(){
+    try{
+      const res = await fetch(webAppUrl + "?data=" + encodeURIComponent(qrData));
+      const data = await res.json();
+
+      if(data.error){
+        status.textContent = "✖ " + data.error;
+        status.className = "error";
+        li.classList.add("duplicate");
+        playInvalidBeep();
+      } else {
+        if(data.isDuplicate || scannedSet.has(qrData)){ // <-- highlight duplicates
+          li.textContent += " (Duplicate)";
+          li.classList.add("duplicate");
+          playDuplicateBeep();
+        } else {
+          playSuccessBeep();
+        }
+        scannedSet.add(qrData); // save scanned QR
+        status.textContent = "✔ Scan saved";
+        status.className = "success";
+        totalCountEl.textContent = "Total Scans: " + data.total;
+      }
+    } catch(err){
+      status.textContent = "✖ Error saving scan";
+      status.className = "error";
+      li.classList.add("duplicate");
+      playInvalidBeep();
+    }
+  }
+
+  sendScan();
+});
+
+
+// Keep input focused
+setInterval(()=>input.focus(),500);
+</script>
+
+</body>
+</html>
