@@ -25,6 +25,25 @@
   opacity: 0.9;
 }
 
+.duplicate-btn {
+  position: fixed;
+  top: 60px;           /* below Today Total button */
+  right: 15px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  background: #ff4d4d;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.duplicate-btn:hover {
+  opacity: 0.9;
+}
+
 
 
 body {
@@ -179,6 +198,8 @@ button:hover { opacity: 0.9; }
 
 <body>
 <button id="totalBtn" class="total-btn">Today Total</button>
+<button id="showDuplicatesBtn" class="duplicate-btn">Duplicates</button>
+
 
 
 <div class="container">
@@ -192,7 +213,6 @@ button:hover { opacity: 0.9; }
   <div id="lastScans">
     <h3>Last 5 Scans</h3>
     <ul id="scanList"></ul>
-    <button id="showDuplicatesBtn">Show Duplicates</button>
   </div>
 
   <div id="totalCount">Total Scans: 0</div>
