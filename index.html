@@ -6,6 +6,27 @@
 <title>Daily Meal Tracker</title>
 
 <style>
+.total-btn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  padding: 10px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: none;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+
+.total-btn:hover {
+  opacity: 0.9;
+}
+
+
+
 body {
   font-family: Arial, sans-serif;
   display: flex;
@@ -157,6 +178,8 @@ button:hover { opacity: 0.9; }
 </head>
 
 <body>
+<button id="totalBtn" class="total-btn">Today Total</button>
+
 
 <div class="container">
   <div id="clock"></div>
@@ -191,6 +214,8 @@ const input = document.getElementById("qrInput");
 const status = document.getElementById("status");
 const scanList = document.getElementById("scanList");
 const totalCountEl = document.getElementById("totalCount");
+const totalBtn = document.getElementById("totalBtn");
+
 
 const modal = document.getElementById("duplicateModal");
 const closeModal = document.getElementById("closeModal");
@@ -199,6 +224,31 @@ const showDuplicatesBtn = document.getElementById("showDuplicatesBtn");
 
 const scannedSet = new Set();
 const allScans = [];
+
+/* -------- TODAY TOTAL FUNCTION -------- */
+totalBtn.addEventListener("click", async () => {
+  status.textContent = "Fetching today's total...";
+  status.className = "";
+
+  try {
+    const res = await fetch(webAppUrl + "?action=todayTotal");
+    const data = await res.json();
+
+    if (data.error) {
+      status.textContent = "✖ " + data.error;
+      status.className = "error";
+      return;
+    }
+
+    status.textContent = `📊 Today's Total Scans: ${data.total}`;
+    status.className = "success";
+
+  } catch {
+    status.textContent = "✖ Network error";
+    status.className = "error";
+  }
+});
+
 
 /* -------- CLOCK -------- */
 function updateClock() {
