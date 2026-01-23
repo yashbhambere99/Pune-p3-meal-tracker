@@ -6,46 +6,6 @@
 <title>Daily Meal Tracker</title>
 
 <style>
-.total-btn {
-  position: fixed;
-  top: 15px;
-  right: 15px;
-  padding: 10px 14px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: none;
-  background: #007bff;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 1000;
-}
-
-.total-btn:hover {
-  opacity: 0.9;
-}
-
-.duplicate-btn {
-  position: fixed;
-  top: 60px;           /* below Today Total button */
-  right: 15px;
-  padding: 10px 14px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: none;
-  background: #ff4d4d;
-  color: white;
-  cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 1000;
-}
-
-.duplicate-btn:hover {
-  opacity: 0.9;
-}
-
-
-
 body {
   font-family: Arial, sans-serif;
   display: flex;
@@ -60,8 +20,28 @@ body {
   background-size: cover;
 }
 
+/* TOTAL SCAN BUTTON */
+#totalBtn {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  border: none;
+  border-radius: 8px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+#totalBtn:hover {
+  background: #0056b3;
+}
+
 .container {
-  background: rgba(255,255,255,0.85);
+  background: rgba(255,255,255,0.9);
   padding: 30px 40px;
   border-radius: 12px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.25);
@@ -71,7 +51,7 @@ body {
 }
 
 h1 { font-size: 22px; margin-bottom: 8px; }
-p { font-size: 14px; color: #555; margin-bottom: 15px; }
+p { font-size: 14px; color: #555; }
 
 input {
   width: 100%;
@@ -81,10 +61,8 @@ input {
   border-radius: 6px;
 }
 
-input:focus { border-color: #007bff; }
-
 #clock {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   margin-bottom: 10px;
 }
@@ -98,109 +76,30 @@ input:focus { border-color: #007bff; }
 .success { color: green; }
 .error { color: red; }
 
-#lastScans {
-  margin-top: 15px;
-  text-align: left;
-}
-
-#scanList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
 #scanList li {
   font-size: 13px;
   padding: 6px 8px;
-  background: #f1f1f1;
   border-radius: 4px;
   margin-bottom: 6px;
+  background: #f1f1f1;
 }
 
-.duplicate {
-  background: #ffe5e5 !important;
-  border-left: 5px solid #ff4d4d;
-  color: #a10000;
-}
-
-button {
-  margin-top: 10px;
-  padding: 8px 12px;
-  font-size: 13px;
-  border: none;
-  border-radius: 6px;
-  background: #ff4d4d;
-  color: white;
-  cursor: pointer;
-}
-
-button:hover { opacity: 0.9; }
+.dup-yellow { background: #fff2cc !important; border-left: 5px solid #f0ad4e; }
+.dup-red { background: #ffe5e5 !important; border-left: 5px solid #ff4d4d; }
 
 #totalCount {
-  font-size: 15px;
+  font-size: 18px;
   font-weight: bold;
-  color: #29a745;
+  color: #007bff;
   margin-top: 15px;
-}
-
-/* ---------------- MODAL ---------------- */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 999;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.5);
-}
-
-.modal-content {
-  background: #fff;
-  margin: 8% auto;
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 420px;
-  max-height: 70vh;
-  overflow-y: auto;
-}
-
-.modal-content h3 {
-  margin-top: 0;
-  text-align: center;
-}
-
-.close {
-  float: right;
-  font-size: 22px;
-  font-weight: bold;
-  cursor: pointer;
-  color: #ff4d4d;
-}
-
-#duplicateList {
-  list-style: none;
-  padding: 0;
-  margin-top: 15px;
-}
-
-#duplicateList li {
-  padding: 8px;
-  font-size: 13px;
-  background: #ffe5e5;
-  border-left: 5px solid #ff4d4d;
-  border-radius: 4px;
-  margin-bottom: 6px;
 }
 </style>
 </head>
 
 <body>
-<button id="totalBtn" class="total-btn">Today Total</button>
-<button id="showDuplicatesBtn" class="duplicate-btn">Duplicates</button>
 
-
+<!-- TOTAL SCANS BUTTON -->
+<button id="totalBtn">Total Scans</button>
 
 <div class="container">
   <div id="clock"></div>
@@ -210,182 +109,108 @@ button:hover { opacity: 0.9; }
   <input type="text" id="qrInput" placeholder="Scan here..." autofocus>
   <div id="status"></div>
 
-  <div id="lastScans">
-    <h3>Last 5 Scans</h3>
-    <ul id="scanList"></ul>
-  </div>
+  <ul id="scanList"></ul>
 
   <div id="totalCount">Total Scans: 0</div>
 </div>
 
-<!-- ---------- DUPLICATE POPUP ---------- -->
-<div id="duplicateModal" class="modal">
-  <div class="modal-content">
-    <span class="close" id="closeModal">&times;</span>
-    <h3>Duplicate Scans (Today)</h3>
-    <ul id="duplicateList"></ul>
-  </div>
-</div>
-
 <script>
-const webAppUrl = "https://script.google.com/macros/s/AKfycbxBFHqLh6bjDTpAHNf6qvGwMKFBQhgExYRRibRI4yLHlVKWD773ghV9UXzhqZ8RIBYn8Q/exec";
+const webAppUrl =
+"https://script.google.com/macros/s/AKfycbxBFHqLh6bjDTpAHNf6qvGwMKFBQhgExYRRibRI4yLHlVKWD773ghV9UXzhqZ8RIBYn8Q/exec";
 
+/* ELEMENTS */
 const input = document.getElementById("qrInput");
 const status = document.getElementById("status");
 const scanList = document.getElementById("scanList");
 const totalCountEl = document.getElementById("totalCount");
 const totalBtn = document.getElementById("totalBtn");
 
-
-const modal = document.getElementById("duplicateModal");
-const closeModal = document.getElementById("closeModal");
-const duplicateList = document.getElementById("duplicateList");
-const showDuplicatesBtn = document.getElementById("showDuplicatesBtn");
-
-const scannedSet = new Set();
 const allScans = [];
 
-/* -------- TODAY TOTAL FUNCTION -------- */
-totalBtn.addEventListener("click", async () => {
-  status.textContent = "Fetching today's total...";
-  status.className = "";
-
-  try {
-    const res = await fetch(webAppUrl + "?action=todayTotal");
-    const data = await res.json();
-
-    if (data.error) {
-      status.textContent = "✖ " + data.error;
-      status.className = "error";
-      return;
-    }
-
-    status.textContent = `📊 Today's Total Scans: ${data.total}`;
-    status.className = "success";
-
-  } catch {
-    status.textContent = "✖ Network error";
-    status.className = "error";
-  }
-});
-
-
-/* -------- CLOCK -------- */
-function updateClock() {
-  const now = new Date();
+/* CLOCK */
+setInterval(() => {
+  const n = new Date();
   document.getElementById("clock").textContent =
-    now.toLocaleDateString() + " | " + now.toLocaleTimeString();
-}
-setInterval(updateClock, 1000);
-updateClock();
+    n.toLocaleDateString() + " | " + n.toLocaleTimeString();
+}, 1000);
 
-/* -------- AUDIO -------- */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+/* AUDIO */
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
 function beep(freq, dur, type="sine") {
-  if (audioCtx.state === "suspended") audioCtx.resume();
-  const o = audioCtx.createOscillator();
+  if (ctx.state === "suspended") ctx.resume();
+  const o = ctx.createOscillator();
   o.type = type;
   o.frequency.value = freq;
-  o.connect(audioCtx.destination);
+  o.connect(ctx.destination);
   o.start();
-  o.stop(audioCtx.currentTime + dur / 1000);
-}
-const successBeep = () => beep(1200,120);
-const duplicateBeep = () => beep(600,250,"triangle");
-const invalidBeep = () => beep(300,350,"square");
-
-/* -------- RENDER LAST 5 -------- */
-function renderList() {
-  scanList.innerHTML = "";
-  allScans.slice(0,5).forEach(s => {
-    const li = document.createElement("li");
-    li.textContent = `${s.time} - ${s.qr}`;
-    if (s.isDuplicate) li.classList.add("duplicate");
-    scanList.appendChild(li);
-  });
+  o.stop(ctx.currentTime + dur / 1000);
 }
 
-/* -------- SCAN -------- */
+/* SCAN */
 input.addEventListener("keydown", async e => {
   if (e.key !== "Enter") return;
+
   const qr = input.value.trim();
   input.value = "";
   if (!qr) return;
 
   try {
-    const res = await fetch(webAppUrl + "?action=scan&data=" + encodeURIComponent(qr));
+    const res = await fetch(webAppUrl + "?data=" + encodeURIComponent(qr));
     const data = await res.json();
 
     if (data.error) {
       status.textContent = "✖ " + data.error;
       status.className = "error";
-      invalidBeep();
+      beep(300,300,"square");
       return;
     }
 
-    const isDup = data.isDuplicate || scannedSet.has(qr);
-    allScans.unshift({
-      qr,
-      time: new Date().toLocaleTimeString(),
-      isDuplicate: isDup
+    allScans.unshift({ qr, count: data.count });
+    scanList.innerHTML = "";
+
+    allScans.slice(0,5).forEach(s => {
+      const li = document.createElement("li");
+      li.textContent = s.qr;
+      if (s.count === 2) li.classList.add("dup-yellow");
+      if (s.count >= 3) li.classList.add("dup-red");
+      scanList.appendChild(li);
     });
 
-    scannedSet.add(qr);
-    renderList();
+    status.textContent =
+      data.count === 1 ? "✔ Scan Saved"
+      : data.count === 2 ? "🟡 Duplicate (2nd)"
+      : `🔴 Duplicate (${data.count})`;
 
-    if (isDup) {
-      status.textContent = "⚠ Duplicate Scan";
-      status.className = "error";
-      duplicateBeep();
-    } else {
-      status.textContent = "✔ Scan Saved";
-      status.className = "success";
-      successBeep();
-    }
+    status.className = data.count === 1 ? "success" : "error";
+    beep(data.count === 1 ? 1200 : 600, 200);
 
     totalCountEl.textContent = "Total Scans: " + data.total;
 
   } catch {
     status.textContent = "✖ Network Error";
     status.className = "error";
-    invalidBeep();
   }
 });
 
-/* -------- SHOW DUPLICATES POPUP -------- */
-showDuplicatesBtn.addEventListener("click", async () => {
-  modal.style.display = "block";
-  duplicateList.innerHTML = "<li>Loading...</li>";
-
+/* TOTAL BUTTON CLICK — LIVE FROM SHEET */
+totalBtn.addEventListener("click", async () => {
   try {
-    const res = await fetch(webAppUrl + "?action=duplicates");
+    const res = await fetch(webAppUrl + "?action=total");
     const data = await res.json();
 
-    duplicateList.innerHTML = "";
-
-    if (!data.duplicates || data.duplicates.length === 0) {
-      duplicateList.innerHTML = "<li>No duplicates found</li>";
-      return;
+    if (data.total !== undefined) {
+      alert("Total Scans (Sheet): " + data.total);
+    } else {
+      alert("Total not returned");
     }
-
-    data.duplicates.forEach(d => {
-      const li = document.createElement("li");
-      li.textContent = `${d.time} - ${d.qr}`;
-      duplicateList.appendChild(li);
-    });
-
-  } catch {
-    duplicateList.innerHTML = "<li>Error loading duplicates</li>";
+  } catch (err) {
+    alert("Network Error");
   }
 });
 
-/* -------- CLOSE MODAL -------- */
-closeModal.onclick = () => modal.style.display = "none";
-window.onclick = e => {
-  if (e.target === modal) modal.style.display = "none";
-};
 
-setInterval(()=>input.focus(),500);
+/* KEEP FOCUS */
+setInterval(() => input.focus(), 500);
 </script>
 
 </body>
